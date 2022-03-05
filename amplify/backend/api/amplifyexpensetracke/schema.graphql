@@ -12,8 +12,9 @@ type ExpenseItem @model {
   id: ID!
   expensename: String!
   expensevalue: Float!
-  expenseimagekey: String
   expensecategory: ExpenseCategory @belongsTo
+   type: String! @index(name: "expensesByDate", queryField: "expensesByDate", sortKeyFields: ["createdAt"])
+  createdAt: AWSDateTime!
 }
 
 

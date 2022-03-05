@@ -31,8 +31,8 @@ class ExpenseItem extends Model {
   final String id;
   final String? _expensename;
   final double? _expensevalue;
-  final String? _expenseimagekey;
   final ExpenseCategory? _expensecategory;
+  final String? _type;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -70,31 +70,50 @@ class ExpenseItem extends Model {
     }
   }
   
-  String? get expenseimagekey {
-    return _expenseimagekey;
-  }
-  
   ExpenseCategory? get expensecategory {
     return _expensecategory;
   }
   
-  TemporalDateTime? get createdAt {
-    return _createdAt;
+  String get type {
+    try {
+      return _type!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  TemporalDateTime get createdAt {
+    try {
+      return _createdAt!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
   TemporalDateTime? get updatedAt {
     return _updatedAt;
   }
   
-  const ExpenseItem._internal({required this.id, required expensename, required expensevalue, expenseimagekey, expensecategory, createdAt, updatedAt}): _expensename = expensename, _expensevalue = expensevalue, _expenseimagekey = expenseimagekey, _expensecategory = expensecategory, _createdAt = createdAt, _updatedAt = updatedAt;
+  const ExpenseItem._internal({required this.id, required expensename, required expensevalue, expensecategory, required type, required createdAt, updatedAt}): _expensename = expensename, _expensevalue = expensevalue, _expensecategory = expensecategory, _type = type, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory ExpenseItem({String? id, required String expensename, required double expensevalue, String? expenseimagekey, ExpenseCategory? expensecategory}) {
+  factory ExpenseItem({String? id, required String expensename, required double expensevalue, ExpenseCategory? expensecategory, required String type, required TemporalDateTime createdAt}) {
     return ExpenseItem._internal(
       id: id == null ? UUID.getUUID() : id,
       expensename: expensename,
       expensevalue: expensevalue,
-      expenseimagekey: expenseimagekey,
-      expensecategory: expensecategory);
+      expensecategory: expensecategory,
+      type: type,
+      createdAt: createdAt);
   }
   
   bool equals(Object other) {
@@ -108,8 +127,9 @@ class ExpenseItem extends Model {
       id == other.id &&
       _expensename == other._expensename &&
       _expensevalue == other._expensevalue &&
-      _expenseimagekey == other._expenseimagekey &&
-      _expensecategory == other._expensecategory;
+      _expensecategory == other._expensecategory &&
+      _type == other._type &&
+      _createdAt == other._createdAt;
   }
   
   @override
@@ -123,8 +143,8 @@ class ExpenseItem extends Model {
     buffer.write("id=" + "$id" + ", ");
     buffer.write("expensename=" + "$_expensename" + ", ");
     buffer.write("expensevalue=" + (_expensevalue != null ? _expensevalue!.toString() : "null") + ", ");
-    buffer.write("expenseimagekey=" + "$_expenseimagekey" + ", ");
     buffer.write("expensecategory=" + (_expensecategory != null ? _expensecategory!.toString() : "null") + ", ");
+    buffer.write("type=" + "$_type" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -132,37 +152,39 @@ class ExpenseItem extends Model {
     return buffer.toString();
   }
   
-  ExpenseItem copyWith({String? id, String? expensename, double? expensevalue, String? expenseimagekey, ExpenseCategory? expensecategory}) {
+  ExpenseItem copyWith({String? id, String? expensename, double? expensevalue, ExpenseCategory? expensecategory, String? type, TemporalDateTime? createdAt}) {
     return ExpenseItem._internal(
       id: id ?? this.id,
       expensename: expensename ?? this.expensename,
       expensevalue: expensevalue ?? this.expensevalue,
-      expenseimagekey: expenseimagekey ?? this.expenseimagekey,
-      expensecategory: expensecategory ?? this.expensecategory);
+      expensecategory: expensecategory ?? this.expensecategory,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt);
   }
   
   ExpenseItem.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
       _expensename = json['expensename'],
       _expensevalue = (json['expensevalue'] as num?)?.toDouble(),
-      _expenseimagekey = json['expenseimagekey'],
       _expensecategory = json['expensecategory']?['serializedData'] != null
         ? ExpenseCategory.fromJson(new Map<String, dynamic>.from(json['expensecategory']['serializedData']))
         : null,
+      _type = json['type'],
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'expensename': _expensename, 'expensevalue': _expensevalue, 'expenseimagekey': _expenseimagekey, 'expensecategory': _expensecategory?.toJson(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'expensename': _expensename, 'expensevalue': _expensevalue, 'expensecategory': _expensecategory?.toJson(), 'type': _type, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
   static final QueryField ID = QueryField(fieldName: "expenseItem.id");
   static final QueryField EXPENSENAME = QueryField(fieldName: "expensename");
   static final QueryField EXPENSEVALUE = QueryField(fieldName: "expensevalue");
-  static final QueryField EXPENSEIMAGEKEY = QueryField(fieldName: "expenseimagekey");
   static final QueryField EXPENSECATEGORY = QueryField(
     fieldName: "expensecategory",
     fieldType: ModelFieldType(ModelFieldTypeEnum.model, ofModelName: (ExpenseCategory).toString()));
+  static final QueryField TYPE = QueryField(fieldName: "type");
+  static final QueryField CREATEDAT = QueryField(fieldName: "createdAt");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "ExpenseItem";
     modelSchemaDefinition.pluralName = "ExpenseItems";
@@ -181,12 +203,6 @@ class ExpenseItem extends Model {
       ofType: ModelFieldType(ModelFieldTypeEnum.double)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: ExpenseItem.EXPENSEIMAGEKEY,
-      isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
     modelSchemaDefinition.addField(ModelFieldDefinition.belongsTo(
       key: ExpenseItem.EXPENSECATEGORY,
       isRequired: false,
@@ -194,10 +210,15 @@ class ExpenseItem extends Model {
       ofModelName: (ExpenseCategory).toString()
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(
-      fieldName: 'createdAt',
-      isRequired: false,
-      isReadOnly: true,
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: ExpenseItem.TYPE,
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: ExpenseItem.CREATEDAT,
+      isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.dateTime)
     ));
     
