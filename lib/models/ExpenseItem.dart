@@ -32,7 +32,6 @@ class ExpenseItem extends Model {
   final String? _expensename;
   final double? _expensevalue;
   final ExpenseCategory? _expensecategory;
-  final String? _type;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -70,13 +69,9 @@ class ExpenseItem extends Model {
     }
   }
   
-  ExpenseCategory? get expensecategory {
-    return _expensecategory;
-  }
-  
-  String get type {
+  ExpenseCategory get expensecategory {
     try {
-      return _type!;
+      return _expensecategory!;
     } catch(e) {
       throw new AmplifyCodeGenModelException(
           AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -104,15 +99,14 @@ class ExpenseItem extends Model {
     return _updatedAt;
   }
   
-  const ExpenseItem._internal({required this.id, required expensename, required expensevalue, expensecategory, required type, required createdAt, updatedAt}): _expensename = expensename, _expensevalue = expensevalue, _expensecategory = expensecategory, _type = type, _createdAt = createdAt, _updatedAt = updatedAt;
+  const ExpenseItem._internal({required this.id, required expensename, required expensevalue, required expensecategory, required createdAt, updatedAt}): _expensename = expensename, _expensevalue = expensevalue, _expensecategory = expensecategory, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory ExpenseItem({String? id, required String expensename, required double expensevalue, ExpenseCategory? expensecategory, required String type, required TemporalDateTime createdAt}) {
+  factory ExpenseItem({String? id, required String expensename, required double expensevalue, required ExpenseCategory expensecategory, required TemporalDateTime createdAt}) {
     return ExpenseItem._internal(
       id: id == null ? UUID.getUUID() : id,
       expensename: expensename,
       expensevalue: expensevalue,
       expensecategory: expensecategory,
-      type: type,
       createdAt: createdAt);
   }
   
@@ -128,7 +122,6 @@ class ExpenseItem extends Model {
       _expensename == other._expensename &&
       _expensevalue == other._expensevalue &&
       _expensecategory == other._expensecategory &&
-      _type == other._type &&
       _createdAt == other._createdAt;
   }
   
@@ -144,7 +137,6 @@ class ExpenseItem extends Model {
     buffer.write("expensename=" + "$_expensename" + ", ");
     buffer.write("expensevalue=" + (_expensevalue != null ? _expensevalue!.toString() : "null") + ", ");
     buffer.write("expensecategory=" + (_expensecategory != null ? _expensecategory!.toString() : "null") + ", ");
-    buffer.write("type=" + "$_type" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -152,13 +144,12 @@ class ExpenseItem extends Model {
     return buffer.toString();
   }
   
-  ExpenseItem copyWith({String? id, String? expensename, double? expensevalue, ExpenseCategory? expensecategory, String? type, TemporalDateTime? createdAt}) {
+  ExpenseItem copyWith({String? id, String? expensename, double? expensevalue, ExpenseCategory? expensecategory, TemporalDateTime? createdAt}) {
     return ExpenseItem._internal(
       id: id ?? this.id,
       expensename: expensename ?? this.expensename,
       expensevalue: expensevalue ?? this.expensevalue,
       expensecategory: expensecategory ?? this.expensecategory,
-      type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt);
   }
   
@@ -169,12 +160,11 @@ class ExpenseItem extends Model {
       _expensecategory = json['expensecategory']?['serializedData'] != null
         ? ExpenseCategory.fromJson(new Map<String, dynamic>.from(json['expensecategory']['serializedData']))
         : null,
-      _type = json['type'],
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'expensename': _expensename, 'expensevalue': _expensevalue, 'expensecategory': _expensecategory?.toJson(), 'type': _type, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'expensename': _expensename, 'expensevalue': _expensevalue, 'expensecategory': _expensecategory?.toJson(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
   static final QueryField ID = QueryField(fieldName: "expenseItem.id");
@@ -183,7 +173,6 @@ class ExpenseItem extends Model {
   static final QueryField EXPENSECATEGORY = QueryField(
     fieldName: "expensecategory",
     fieldType: ModelFieldType(ModelFieldTypeEnum.model, ofModelName: (ExpenseCategory).toString()));
-  static final QueryField TYPE = QueryField(fieldName: "type");
   static final QueryField CREATEDAT = QueryField(fieldName: "createdAt");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "ExpenseItem";
@@ -205,15 +194,9 @@ class ExpenseItem extends Model {
     
     modelSchemaDefinition.addField(ModelFieldDefinition.belongsTo(
       key: ExpenseItem.EXPENSECATEGORY,
-      isRequired: false,
-      targetName: "expenseCategoryExpensesId",
-      ofModelName: (ExpenseCategory).toString()
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: ExpenseItem.TYPE,
       isRequired: true,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+      targetName: "expenseCategoryID",
+      ofModelName: (ExpenseCategory).toString()
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(

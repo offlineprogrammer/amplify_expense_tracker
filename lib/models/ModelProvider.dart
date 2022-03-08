@@ -28,7 +28,7 @@ export 'ExpenseItem.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "3497ad4dcf6300f26ad9479ea278ad4c";
+  String version = "e9938bbdbfbacd05dd684276339a184e";
   @override
   List<ModelSchema> modelSchemas = [ExpenseCategory.schema, ExpenseItem.schema];
   static final ModelProvider _instance = ModelProvider();

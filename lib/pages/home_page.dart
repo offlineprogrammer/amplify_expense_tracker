@@ -16,26 +16,20 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<ExpenseItem?>?> _getExpenses() async {
     try {
-      print('Start');
       final request = ModelQueries.list(ExpenseItem.classType);
-      print('1');
       final response = await Amplify.API.query(request: request).response;
-      print('2');
       List<ExpenseItem?>? expenseItems = response.data?.items;
-      print(expenseItems!.length);
-      print(expenseItems);
-      expenseItems.sort((a, b) => b!.createdAt.compareTo(a!.createdAt));
-      print(expenseItems);
-      return expenseItems; //.reversed.toList();
+      expenseItems!.sort((a, b) => b!.createdAt.compareTo(a!.createdAt));
+      return expenseItems;
     } on ApiException catch (e) {
       print('Query failed: $e');
     }
+    return null;
   }
 
   @override
   void initState() {
     super.initState();
-
     expenseItems = _getExpenses();
   }
 
@@ -43,6 +37,7 @@ class _HomePageState extends State<HomePage> {
       TextEditingController();
   final TextEditingController _expenseValueController = TextEditingController();
   final TextEditingController _expenseNameController = TextEditingController();
+  late ExpenseCategory _selectedExpenseCategory;
 
   Future<void> _saveCategory() async {
     try {
@@ -57,8 +52,49 @@ class _HomePageState extends State<HomePage> {
         print('errors: ' + response.errors.toString());
         return;
       }
-      print('Mutation result: ' + createdExpenseCategory.categoryname);
       Navigator.of(context, rootNavigator: true).pop('dialog');
+    } on ApiException catch (e) {
+      print('Mutation failed: $e');
+    }
+  }
+
+  Future<void> _deleteExpenseItem(ExpenseItem expenseItem) async {
+    try {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Please Confirm'),
+            content: const Text('Delete this expense?'),
+            actions: [
+              // The "Yes" button
+              TextButton(
+                  onPressed: () async {
+                    // Remove the box
+                    print('Delete');
+                    final request = ModelMutations.delete(expenseItem);
+                    final response =
+                        await Amplify.API.mutate(request: request).response;
+
+                    setState(() {
+                      expenseItems = _getExpenses();
+                    });
+
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Yes')),
+              TextButton(
+                  onPressed: () {
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('No'))
+            ],
+          );
+        },
+      );
     } on ApiException catch (e) {
       print('Mutation failed: $e');
     }
@@ -70,7 +106,7 @@ class _HomePageState extends State<HomePage> {
         expensename: _expenseNameController.text,
         expensevalue: double.parse(_expenseValueController.text),
         createdAt: TemporalDateTime.now(),
-        type: 'expenseItem',
+        expensecategory: _selectedExpenseCategory,
       );
       final request = ModelMutations.create(expenseItem);
       final response = await Amplify.API.mutate(request: request).response;
@@ -93,20 +129,16 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _submit() async {}
-
   Future<List<ExpenseCategory?>?> _getExpenseCategories() async {
     try {
-      print('0');
       final request = ModelQueries.list(ExpenseCategory.classType);
-      print('00');
       final response = await Amplify.API.query(request: request).response;
-      print('000');
       List<ExpenseCategory?>? expenseCategories = response.data?.items;
       return expenseCategories;
     } on ApiException catch (e) {
       print('Query failed: $e');
     }
+    return null;
   }
 
   void _showAddExpenseDialog(BuildContext context) {
@@ -132,7 +164,6 @@ class _HomePageState extends State<HomePage> {
                   decoration: const InputDecoration(hintText: "0.00"),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
-                  onEditingComplete: () => _submit(),
                 ),
                 const SizedBox(
                   height: 20.0,
@@ -143,7 +174,6 @@ class _HomePageState extends State<HomePage> {
                   autocorrect: false,
                   decoration: const InputDecoration(hintText: "Expense Name"),
                   textInputAction: TextInputAction.done,
-                  onEditingComplete: () => _submit(),
                 ),
                 const SizedBox(
                   height: 20.0,
@@ -151,17 +181,18 @@ class _HomePageState extends State<HomePage> {
                 FutureBuilder<List<ExpenseCategory?>?>(
                     future: _getExpenseCategories(),
                     builder: (context, snapshot) {
-                      return DropdownButton<String>(
+                      return DropdownButtonFormField<ExpenseCategory>(
                         hint: const Text("Select"),
                         onChanged: (newValue) {
                           setState(() {
-                            //selectedFc = newValue;
+                            _selectedExpenseCategory = newValue!;
                           });
                         },
+                        // value: selectedCategory,
                         items: snapshot.data
-                            ?.map((fc) => DropdownMenuItem<String>(
-                                  value: fc?.categoryname,
-                                  child: Text(fc!.categoryname),
+                            ?.map((ec) => DropdownMenuItem<ExpenseCategory>(
+                                  value: ec,
+                                  child: Text(ec!.categoryname),
                                 ))
                             .toList(),
                       );
@@ -211,9 +242,6 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(
                     height: 20.0,
                   ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
                 ],
               ),
             ),
@@ -236,33 +264,26 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: expensesWidget(),
-      ),
-      floatingActionButton: SpeedDial(icon: Icons.add,
-          // backgroundColor: Colors.amber,
-          children: [
-            SpeedDialChild(
-              child: const Icon(Icons.attach_money),
-              label: 'Add Expense',
-              backgroundColor: Colors.blue,
-              onTap: () {
-                _showAddExpenseDialog(context);
-              },
-            ),
-            SpeedDialChild(
-              child: const Icon(Icons.file_copy),
-              label: 'Add Category',
-              backgroundColor: Colors.blue,
-              onTap: () {
-                _showAddCategoryDialog(context);
-              },
-            ),
-          ]),
+      body: expensesWidget(),
+      floatingActionButton: SpeedDial(icon: Icons.add, children: [
+        SpeedDialChild(
+          child: const Icon(Icons.attach_money),
+          label: 'Add Expense',
+          backgroundColor: Colors.blue,
+          onTap: () {
+            _showAddExpenseDialog(context);
+          },
+        ),
+        SpeedDialChild(
+          child: const Icon(Icons.file_copy),
+          label: 'Add Category',
+          backgroundColor: Colors.blue,
+          onTap: () {
+            _showAddCategoryDialog(context);
+          },
+        ),
+      ]),
     );
-
-    //return Container(child: ExpensesWidget());
   }
 
   Widget expensesWidget() {
@@ -274,21 +295,48 @@ class _HomePageState extends State<HomePage> {
         if (snapshot.hasError) {
           return Center(child: Text(snapshot.error.toString()));
         }
-        return ListView.separated(
-          padding: const EdgeInsets.all(10),
-          itemCount: snapshot.data!.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(snapshot.data![index]!.expensename),
-              trailing: Text(snapshot.data![index]!.expensevalue.toString()),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return const Divider(
-              indent: 20,
-              endIndent: 20,
-            );
-          },
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              color: Colors.amber,
+              child: const ListTile(
+                leading: Text(''),
+                title: Text('Expense'),
+                trailing: Text('Value'),
+              ),
+            ),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.all(10),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.delete,
+                          color: Colors.red, size: 30.0),
+                      onPressed: () {
+                        print('ok');
+                        _deleteExpenseItem(snapshot.data![index]!);
+                      },
+                    ),
+                    title: Text(snapshot.data![index]!.expensename),
+                    subtitle: Text(
+                        snapshot.data![index]!.expensecategory.categoryname),
+                    trailing: Text(
+                        '\$${snapshot.data![index]!.expensevalue.toString()}'),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return const Divider(
+                    indent: 20,
+                    endIndent: 20,
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
       future: expenseItems,
