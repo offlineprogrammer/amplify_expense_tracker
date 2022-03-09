@@ -37,6 +37,14 @@ class _HomePageState extends State<HomePage> {
       TextEditingController();
   final TextEditingController _expenseValueController = TextEditingController();
   final TextEditingController _expenseNameController = TextEditingController();
+
+  final TextEditingController _editExpenseValueController =
+      TextEditingController();
+  final TextEditingController _editExpenseNameController =
+      TextEditingController();
+
+  final TextEditingController _findExpenseNameController =
+      TextEditingController();
   late ExpenseCategory _selectedExpenseCategory;
 
   Future<void> _saveCategory() async {
@@ -53,6 +61,93 @@ class _HomePageState extends State<HomePage> {
         return;
       }
       Navigator.of(context, rootNavigator: true).pop('dialog');
+    } on ApiException catch (e) {
+      print('Mutation failed: $e');
+    }
+  }
+
+  Future<void> _updateExpenseItem(ExpenseItem expenseItem) async {
+    try {
+      _editExpenseNameController.text = expenseItem.expensename;
+      _editExpenseValueController.text = expenseItem.expensevalue.toString();
+      _selectedExpenseCategory = expenseItem.expensecategory;
+      late ExpenseItem _updatedExpenseItem;
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              'Add Expense here',
+              textAlign: TextAlign.center,
+            ),
+            content: Container(
+              padding: const EdgeInsets.all(16.0),
+              width: double.infinity,
+              child: SingleChildScrollView(
+                child: ListBody(children: [
+                  TextFormField(
+                    textAlign: TextAlign.center,
+                    controller: _editExpenseValueController,
+                    style: const TextStyle(fontSize: 70, color: Colors.black),
+                    autofocus: true,
+                    autocorrect: false,
+                    decoration: const InputDecoration(hintText: "0.00"),
+                    textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  TextFormField(
+                    controller: _editExpenseNameController,
+                    autofocus: true,
+                    autocorrect: false,
+                    decoration: const InputDecoration(hintText: "Expense Name"),
+                    textInputAction: TextInputAction.done,
+                  ),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  FutureBuilder<List<ExpenseCategory?>?>(
+                      future: _getExpenseCategories(),
+                      builder: (context, snapshot) {
+                        return DropdownButtonFormField<ExpenseCategory>(
+                          hint: Text(expenseItem.expensecategory.categoryname),
+                          onChanged: (newValue) {
+                            _selectedExpenseCategory = newValue!;
+                          },
+                          // value: selectedCategory,
+                          items: snapshot.data
+                              ?.map((ec) => DropdownMenuItem<ExpenseCategory>(
+                                    value: ec,
+                                    child: Text(ec!.categoryname),
+                                  ))
+                              .toList(),
+                        );
+                      }),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                ]),
+              ),
+            ),
+            actions: [
+              TextButton(
+                  child: const Text('Save'),
+                  onPressed: () {
+                    _updatedExpenseItem = expenseItem.copyWith(
+                        expensevalue:
+                            double.parse(_editExpenseValueController.text),
+                        expensename: _editExpenseNameController.text,
+                        expensecategory: _selectedExpenseCategory);
+
+                    _updateExpense(_updatedExpenseItem); //,
+                  }),
+            ],
+          );
+          ;
+        },
+      );
     } on ApiException catch (e) {
       print('Mutation failed: $e');
     }
@@ -95,6 +190,22 @@ class _HomePageState extends State<HomePage> {
           );
         },
       );
+    } on ApiException catch (e) {
+      print('Mutation failed: $e');
+    }
+  }
+
+  Future<void> _updateExpense(ExpenseItem updatedExpenseItem) async {
+    try {
+      final request = ModelMutations.update(updatedExpenseItem);
+      final response = await Amplify.API.mutate(request: request).response;
+
+      setState(() {
+        expenseItems = _getExpenses();
+      });
+      _expenseNameController.clear();
+      _expenseValueController.clear();
+      Navigator.of(context, rootNavigator: true).pop('dialog');
     } on ApiException catch (e) {
       print('Mutation failed: $e');
     }
@@ -267,19 +378,19 @@ class _HomePageState extends State<HomePage> {
       body: expensesWidget(),
       floatingActionButton: SpeedDial(icon: Icons.add, children: [
         SpeedDialChild(
-          child: const Icon(Icons.attach_money),
-          label: 'Add Expense',
-          backgroundColor: Colors.blue,
-          onTap: () {
-            _showAddExpenseDialog(context);
-          },
-        ),
-        SpeedDialChild(
           child: const Icon(Icons.file_copy),
           label: 'Add Category',
           backgroundColor: Colors.blue,
           onTap: () {
             _showAddCategoryDialog(context);
+          },
+        ),
+        SpeedDialChild(
+          child: const Icon(Icons.attach_money),
+          label: 'Add Expense',
+          backgroundColor: Colors.blue,
+          onTap: () {
+            _showAddExpenseDialog(context);
           },
         ),
       ]),
@@ -297,35 +408,35 @@ class _HomePageState extends State<HomePage> {
         }
         return Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              color: Colors.amber,
-              child: const ListTile(
-                leading: Text(''),
-                title: Text('Expense'),
-                trailing: Text('Value'),
-              ),
-            ),
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.all(10),
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    leading: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.delete,
-                          color: Colors.red, size: 30.0),
-                      onPressed: () {
-                        print('ok');
-                        _deleteExpenseItem(snapshot.data![index]!);
-                      },
+                    leading: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Text(
+                          '\$${snapshot.data![index]!.expensevalue.toString()}'),
                     ),
                     title: Text(snapshot.data![index]!.expensename),
                     subtitle: Text(
                         snapshot.data![index]!.expensecategory.categoryname),
-                    trailing: Text(
-                        '\$${snapshot.data![index]!.expensevalue.toString()}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              _updateExpenseItem(snapshot.data![index]!);
+                            },
+                            icon: Icon(Icons.edit)),
+                        IconButton(
+                            onPressed: () {
+                              _deleteExpenseItem(snapshot.data![index]!);
+                            },
+                            icon: Icon(Icons.delete)),
+                      ],
+                    ),
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
