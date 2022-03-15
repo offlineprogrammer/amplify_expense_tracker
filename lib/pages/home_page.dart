@@ -145,7 +145,6 @@ class _HomePageState extends State<HomePage> {
                   }),
             ],
           );
-          ;
         },
       );
     } on ApiException catch (e) {
@@ -321,7 +320,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         );
-        ;
       },
     );
   }
@@ -417,7 +415,7 @@ class _HomePageState extends State<HomePage> {
                     leading: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Text(
-                          '\$${snapshot.data![index]!.expensevalue.toString()}'),
+                          '\$${snapshot.data![index]!.expensevalue.toStringAsFixed(2)}'),
                     ),
                     title: Text(snapshot.data![index]!.expensename),
                     subtitle: Text(

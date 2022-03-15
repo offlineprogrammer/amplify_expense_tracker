@@ -31,6 +31,8 @@ dependencies:
     sdk: flutter
   amplify_flutter: ^0.4.1
   amplify_api: ^0.4.1
+  amplify_auth_cognito: ^0.4.1
+  amplify_authenticator: ^0.1.0
   flutter_speed_dial: ^5.0.0+1
 
 

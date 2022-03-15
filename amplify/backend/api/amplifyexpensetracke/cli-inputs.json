@@ -3,10 +3,12 @@
   "serviceConfiguration": {
     "apiName": "amplifyexpensetracke",
     "serviceName": "AppSync",
-    "gqlSchemaPath": "/Users/malakamm/development/amplify_expense_tracker/amplify/backend/api/amplifyexpensetracke/schema.graphql",
+    "gqlSchemaPath": "/Users/tshepp/amplify_src/amplify_expense_tracker/amplify/backend/api/amplifyexpensetracke/schema.graphql",
     "defaultAuthType": {
-      "mode": "API_KEY",
-      "expirationTime": 7
-    }
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authamplifyexpensetrackefbaa4c7e"
+    },
+    "conflictResolution": {},
+    "additionalAuthTypes": []
   }
 }

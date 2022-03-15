@@ -1,5 +1,12 @@
 {
   "AppSyncApiName": "amplifyexpensetracke",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authamplifyexpensetrackefbaa4c7e",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2022-03-15T20:17:42.451Z"
 }
