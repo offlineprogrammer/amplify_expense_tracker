@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_api/amplify_api.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_authenticator/amplify_authenticator.dart';
 import 'models/ModelProvider.dart';
 
 import 'amplifyconfiguration.dart';
@@ -29,23 +31,11 @@ class _MyAppState extends State<MyApp> {
     _configureAmplify();
   }
 
-  Future<List<ExpenseItem?>?> _getExpenses() async {
-    try {
-      print('Start');
-      final request = ModelQueries.list(ExpenseItem.classType);
-      print('1');
-      final response = await Amplify.API.query(request: request).response;
-      print('2');
-      List<ExpenseItem?>? expenseItems = response.data?.items;
-      print(expenseItems!.length);
-      return expenseItems;
-    } on ApiException catch (e) {
-      print('Query failed: $e');
-    }
-  }
-
   void _configureAmplify() async {
-    Amplify.addPlugin(AmplifyAPI(modelProvider: ModelProvider.instance));
+    Amplify.addPlugins([
+      AmplifyAuthCognito(),
+      AmplifyAPI(modelProvider: ModelProvider.instance)
+    ]);
 
     try {
       await Amplify.configure(amplifyconfig);
@@ -59,15 +49,17 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  Widget buildApp(BuildContext context) {
+    return _amplifyConfigured
+        ? const HomePage(title: 'Flutter Demo Home Page')
+        : _waitForAmplify();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fetch Data Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: _amplifyConfigured
-          ? const HomePage(title: 'Flutter Demo Home Page')
-          : _waitForAmplify(),
+    return Authenticator(
+      child: MaterialApp(
+          builder: Authenticator.builder(), home: buildApp(context)),
     );
   }
 
