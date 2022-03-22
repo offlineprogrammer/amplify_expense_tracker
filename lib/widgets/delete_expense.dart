@@ -17,18 +17,20 @@ class DeleteExpense extends StatelessWidget {
       actions: [
         // The "Yes" button
         TextButton(
-            onPressed: () async {
-              await apiService.deleteExpense(expenseItem);
+          onPressed: () async {
+            await apiService.deleteExpense(expenseItem);
 
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Yes')),
+            Navigator.of(context).pop(true);
+          },
+          child: const Text('Yes'),
+        ),
         TextButton(
-            onPressed: () {
-              // Close the dialog
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('No'))
+          onPressed: () {
+            // Close the dialog
+            Navigator.of(context).pop(false);
+          },
+          child: const Text('No'),
+        )
       ],
     );
   }

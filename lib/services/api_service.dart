@@ -1,4 +1,5 @@
 import 'package:amplify_api/amplify_api.dart';
+import 'package:amplify_expense_tracker/main.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 
 import '../models/ModelProvider.dart';
@@ -67,7 +68,7 @@ class APIService {
       List<ExpenseCategory?>? expenseCategories = response.data?.items;
       return expenseCategories;
     } on ApiException catch (e) {
-      print('Query failed: $e');
+      scaffoldMessengerKey.currentState?.showSnackBar(snackBar)
     }
     return null;
   }

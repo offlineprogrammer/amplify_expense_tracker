@@ -13,7 +13,7 @@ class AddExpense extends StatelessWidget {
   final TextEditingController _expenseValueController = TextEditingController();
   final TextEditingController _expenseNameController = TextEditingController();
 
-  late ExpenseCategory _selectedExpenseCategory;
+  ExpenseCategory? _selectedExpenseCategory;
   final formGlobalKey = GlobalKey<FormState>();
 
   @override
@@ -78,10 +78,16 @@ class AddExpense extends StatelessWidget {
                   builder: (context, snapshot) {
                     return DropdownButtonFormField<ExpenseCategory>(
                       hint: const Text("Select"),
+                      value: _selectedExpenseCategory,
                       onChanged: (newValue) {
-                        _selectedExpenseCategory = newValue!;
+                        _selectedExpenseCategory = newValue;
                       },
-                      // value: selectedCategory,
+                      validator: (selected) {
+                        if (selected == null) {
+                          return 'Select an expense item';
+                        }
+                        return null;
+                      },
                       items: snapshot.data
                           ?.map((ec) => DropdownMenuItem<ExpenseCategory>(
                                 value: ec,
@@ -99,25 +105,25 @@ class AddExpense extends StatelessWidget {
       ),
       actions: [
         TextButton(
-            child: const Text('OK'),
-            onPressed: () async {
-              if (formGlobalKey.currentState!.validate()) {
-                formGlobalKey.currentState!.save();
-                ExpenseItem expenseItem = ExpenseItem(
-                  expensename: _expenseNameController.text,
-                  expensevalue: double.parse(_expenseValueController.text),
-                  createdAt: TemporalDateTime.now(),
-                  expensecategory: _selectedExpenseCategory,
-                );
+          child: const Text('OK'),
+          onPressed: () async {
+            if (formGlobalKey.currentState!.validate()) {
+              formGlobalKey.currentState!.save();
+              ExpenseItem expenseItem = ExpenseItem(
+                expensename: _expenseNameController.text,
+                expensevalue: double.parse(_expenseValueController.text),
+                createdAt: TemporalDateTime.now(),
+                expensecategory: _selectedExpenseCategory!,
+              );
 
-                await apiService.saveExpense(expenseItem);
+              await apiService.saveExpense(expenseItem);
 
-                _expenseNameController.clear();
-                _expenseValueController.clear();
-                Navigator.of(context, rootNavigator: true).pop(true);
-              }
-            } //,
-            ),
+              _expenseNameController.clear();
+              _expenseValueController.clear();
+              Navigator.of(context).pop(true);
+            }
+          },
+        ),
       ],
     );
   }

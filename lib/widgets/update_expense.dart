@@ -3,26 +3,38 @@ import 'package:flutter/material.dart';
 import '../models/ModelProvider.dart';
 import '../services/api_service.dart';
 
-class UpdateExpense extends StatelessWidget {
+class UpdateExpense extends StatefulWidget {
   UpdateExpense(this.expenseItem, this.apiService, {Key? key})
       : super(key: key);
 
   final APIService apiService;
 
   final ExpenseItem expenseItem;
+
+  @override
+  State<UpdateExpense> createState() => _UpdateExpenseState();
+}
+
+class _UpdateExpenseState extends State<UpdateExpense> {
   late ExpenseCategory _selectedExpenseCategory;
-  late ExpenseItem _updatedExpenseItem;
 
   final TextEditingController _editExpenseValueController =
       TextEditingController();
+
   final TextEditingController _editExpenseNameController =
       TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _editExpenseNameController.text = widget.expenseItem.expensename;
+    _editExpenseValueController.text =
+        widget.expenseItem.expensevalue.toString();
+    _selectedExpenseCategory = widget.expenseItem.expensecategory;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _editExpenseNameController.text = expenseItem.expensename;
-    _editExpenseValueController.text = expenseItem.expensevalue.toString();
-    _selectedExpenseCategory = expenseItem.expensecategory;
     return AlertDialog(
       title: const Text(
         'Update Expense here',
@@ -57,10 +69,10 @@ class UpdateExpense extends StatelessWidget {
               height: 20.0,
             ),
             FutureBuilder<List<ExpenseCategory?>?>(
-                future: apiService.getExpenseCategories(),
+                future: widget.apiService.getExpenseCategories(),
                 builder: (context, snapshot) {
                   return DropdownButtonFormField<ExpenseCategory>(
-                    hint: Text(expenseItem.expensecategory.categoryname),
+                    hint: Text(widget.expenseItem.expensecategory.categoryname),
                     onChanged: (newValue) {
                       _selectedExpenseCategory = newValue!;
                     },
@@ -83,12 +95,13 @@ class UpdateExpense extends StatelessWidget {
         TextButton(
             child: const Text('Save'),
             onPressed: () async {
-              _updatedExpenseItem = expenseItem.copyWith(
-                  expensevalue: double.parse(_editExpenseValueController.text),
-                  expensename: _editExpenseNameController.text,
-                  expensecategory: _selectedExpenseCategory);
+              final updatedExpenseItem = widget.expenseItem.copyWith(
+                expensevalue: double.parse(_editExpenseValueController.text),
+                expensename: _editExpenseNameController.text,
+                expensecategory: _selectedExpenseCategory,
+              );
 
-              await apiService.updateExpense(_updatedExpenseItem);
+              await widget.apiService.updateExpense(updatedExpenseItem);
 
               _editExpenseNameController.clear();
               _editExpenseValueController.clear();
