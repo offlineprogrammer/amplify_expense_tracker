@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "amplifyfunapp",
+    "serviceName": "AppSync",
+    "gqlSchemaPath": "/Users/malakamm/development/amplify_fun_app/amplify/backend/api/amplifyfunapp/schema.graphql",
+    "defaultAuthType": {
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authamplifyfunapp6e6add3b"
+    }
+  }
+}
