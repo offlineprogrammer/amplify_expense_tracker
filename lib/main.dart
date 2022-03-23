@@ -32,12 +32,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _configureAmplify() async {
-    Amplify.addPlugins([
-      AmplifyAuthCognito(),
-      AmplifyAPI(modelProvider: ModelProvider.instance)
-    ]);
-
     try {
+      await Amplify.addPlugins([
+        AmplifyAuthCognito(),
+        AmplifyAPI(modelProvider: ModelProvider.instance)
+      ]);
       await Amplify.configure(amplifyconfig);
       setState(() {
         _amplifyConfigured = true;
@@ -51,7 +50,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget buildApp(BuildContext context) {
     return _amplifyConfigured
-        ? const HomePage(title: 'Flutter Demo Home Page')
+        ? const HomePage(title: 'Amplify Expense ')
         : _waitForAmplify();
   }
 
