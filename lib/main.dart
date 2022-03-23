@@ -47,10 +47,9 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  @override
   Widget buildApp(BuildContext context) {
     return _amplifyConfigured
-        ? const HomePage(title: 'Amplify Expense ')
+        ? const HomePage(title: 'Amplify Expense')
         : _waitForAmplify();
   }
 

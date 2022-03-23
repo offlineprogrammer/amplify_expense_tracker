@@ -9,7 +9,7 @@ class APIService {
       final request = ModelQueries.list(ExpenseItem.classType);
       final response = await Amplify.API.query(request: request).response;
       List<ExpenseItem?>? expenseItems = response.data?.items;
-      expenseItems!.sort((a, b) => b!.createdAt.compareTo(a!.createdAt));
+      expenseItems?.sort((a, b) => b!.createdAt.compareTo(a!.createdAt));
       return expenseItems;
     } on ApiException catch (e) {
       print('Query failed: $e');

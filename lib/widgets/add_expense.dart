@@ -39,7 +39,7 @@ class AddExpense extends StatelessWidget {
                 ],
                 validator: (value) {
                   const _validationError = 'Enter a valid expense value';
-                  if (value!.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return _validationError;
                   }
                   if (double.parse(value) <= 0) {
@@ -63,7 +63,7 @@ class AddExpense extends StatelessWidget {
                 decoration: const InputDecoration(hintText: "Expense Name"),
                 textInputAction: TextInputAction.done,
                 validator: (name) {
-                  if (name!.isNotEmpty) {
+                  if (name != null && name.isNotEmpty) {
                     return null;
                   } else {
                     return 'Enter a valid expense name';
