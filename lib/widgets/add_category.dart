@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 
-class AddCategory extends StatelessWidget {
-  AddCategory(this.apiService, {Key? key}) : super(key: key);
+class AddCategory extends StatefulWidget {
+  const AddCategory(this.apiService, {Key? key}) : super(key: key);
 
   final APIService apiService;
 
+  @override
+  State<AddCategory> createState() => _AddCategoryState();
+}
+
+class _AddCategoryState extends State<AddCategory> {
   final TextEditingController _expenseCategoryController =
       TextEditingController();
 
   final formGlobalKey = GlobalKey<FormState>();
 
   Future<void> _saveCategory(BuildContext context) async {
-    await apiService.saveCategory(_expenseCategoryController.text);
+    await widget.apiService.saveCategory(_expenseCategoryController.text);
     _expenseCategoryController.text = '';
-    Navigator.of(context, rootNavigator: true).pop(true);
+    Navigator.of(context).pop(true);
   }
 
   @override
@@ -38,11 +43,10 @@ class AddCategory extends StatelessWidget {
                     autofocus: true,
                     autocorrect: false,
                     validator: (name) {
-                      if (name!.isNotEmpty) {
-                        return null;
-                      } else {
+                      if (name == null || name.isEmpty) {
                         return 'Enter a valid category';
                       }
+                      return null;
                     },
                     decoration:
                         const InputDecoration(hintText: "Category Name"),
@@ -63,7 +67,11 @@ class AddCategory extends StatelessWidget {
         TextButton(
             child: const Text('OK'),
             onPressed: () {
-              if (formGlobalKey.currentState!.validate()) {
+              final currentState = formGlobalKey.currentState;
+              if (currentState == null) {
+                return;
+              }
+              if (currentState.validate()) {
                 formGlobalKey.currentState!.save();
                 _saveCategory(context);
               }

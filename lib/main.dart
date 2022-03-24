@@ -13,6 +13,8 @@ import 'models/ModelProvider.dart';
 import 'amplifyconfiguration.dart';
 import 'pages/home_page.dart';
 
+final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
@@ -43,7 +45,9 @@ class _MyAppState extends State<MyApp> {
       });
     } on AmplifyAlreadyConfiguredException {
       print(
-          "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
+        'Tried to reconfigure Amplify; '
+        'this can occur when your app restarts on Android.',
+      );
     }
   }
 
@@ -57,7 +61,10 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Authenticator(
       child: MaterialApp(
-          builder: Authenticator.builder(), home: buildApp(context)),
+        builder: Authenticator.builder(),
+        home: buildApp(context),
+        scaffoldMessengerKey: scaffoldMessengerKey,
+      ),
     );
   }
 

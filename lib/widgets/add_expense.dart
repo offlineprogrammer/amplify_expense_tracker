@@ -5,15 +5,19 @@ import 'package:flutter/services.dart';
 import '../models/ModelProvider.dart';
 import '../services/api_service.dart';
 
-class AddExpense extends StatelessWidget {
-  AddExpense(this.apiService, {Key? key}) : super(key: key);
+class AddExpense extends StatefulWidget {
+  const AddExpense(this.apiService, {Key? key}) : super(key: key);
 
   final APIService apiService;
 
+  @override
+  State<AddExpense> createState() => _AddExpenseState();
+}
+
+class _AddExpenseState extends State<AddExpense> {
   final TextEditingController _expenseValueController = TextEditingController();
   final TextEditingController _expenseNameController = TextEditingController();
-
-  late ExpenseCategory _selectedExpenseCategory;
+  ExpenseCategory? _selectedExpenseCategory;
   final formGlobalKey = GlobalKey<FormState>();
 
   @override
@@ -42,7 +46,7 @@ class AddExpense extends StatelessWidget {
                   if (value == null || value.isEmpty) {
                     return _validationError;
                   }
-                  if (double.parse(value) <= 0) {
+                  if (double.tryParse(value)! <= 0) {
                     return _validationError;
                   }
                   return null;
@@ -74,14 +78,21 @@ class AddExpense extends StatelessWidget {
                 height: 20.0,
               ),
               FutureBuilder<List<ExpenseCategory?>?>(
-                  future: apiService.getExpenseCategories(),
+                  future: widget.apiService.getExpenseCategories(),
                   builder: (context, snapshot) {
                     return DropdownButtonFormField<ExpenseCategory>(
                       hint: const Text("Select"),
                       onChanged: (newValue) {
-                        _selectedExpenseCategory = newValue!;
+                        setState(() {
+                          _selectedExpenseCategory = newValue!;
+                        });
                       },
-                      // value: selectedCategory,
+                      validator: (selected) {
+                        if (selected == null) {
+                          return 'Select an expense item';
+                        }
+                        return null;
+                      },
                       items: snapshot.data
                           ?.map((ec) => DropdownMenuItem<ExpenseCategory>(
                                 value: ec,
@@ -101,20 +112,21 @@ class AddExpense extends StatelessWidget {
         TextButton(
             child: const Text('OK'),
             onPressed: () async {
-              if (formGlobalKey.currentState!.validate()) {
-                formGlobalKey.currentState!.save();
+              final currentState = formGlobalKey.currentState;
+              if (currentState == null) {
+                return;
+              }
+              if (currentState.validate()) {
                 ExpenseItem expenseItem = ExpenseItem(
                   expensename: _expenseNameController.text,
-                  expensevalue: double.parse(_expenseValueController.text),
+                  expensevalue: double.tryParse(_expenseValueController.text)!,
                   createdAt: TemporalDateTime.now(),
-                  expensecategory: _selectedExpenseCategory,
+                  expensecategory: _selectedExpenseCategory!,
                 );
-
-                await apiService.saveExpense(expenseItem);
-
+                await widget.apiService.saveExpense(expenseItem);
                 _expenseNameController.clear();
                 _expenseValueController.clear();
-                Navigator.of(context, rootNavigator: true).pop(true);
+                Navigator.of(context).pop(true);
               }
             } //,
             ),
