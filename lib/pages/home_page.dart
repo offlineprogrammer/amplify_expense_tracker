@@ -1,6 +1,5 @@
 import 'package:amplify_expense_tracker/widgets/add_expense.dart';
 import 'package:flutter/material.dart';
-import 'package:amplify_api/amplify_api.dart';
 import '../models/ModelProvider.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 

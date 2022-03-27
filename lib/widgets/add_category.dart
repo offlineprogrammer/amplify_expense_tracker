@@ -60,18 +60,18 @@ class _AddCategoryState extends State<AddCategory> {
       ),
       actions: [
         TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              final currentState = formGlobalKey.currentState;
-              if (currentState == null) {
-                return;
-              }
-              if (currentState.validate()) {
-                currentState.save();
-                Navigator.of(context).pop(_expenseCategoryController.text);
-              }
-            } //,, //,
-            ),
+          child: const Text('OK'),
+          onPressed: () {
+            final currentState = formGlobalKey.currentState;
+            if (currentState == null) {
+              return;
+            }
+            if (currentState.validate()) {
+              currentState.save();
+              Navigator.of(context).pop(_expenseCategoryController.text);
+            }
+          },
+        ),
       ],
     );
   }

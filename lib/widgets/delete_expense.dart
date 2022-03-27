@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 
-class DeleteExpense extends StatefulWidget {
+class DeleteExpense extends StatelessWidget {
   const DeleteExpense({Key? key}) : super(key: key);
 
-  @override
-  State<DeleteExpense> createState() => _DeleteExpenseState();
-}
-
-class _DeleteExpenseState extends State<DeleteExpense> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(

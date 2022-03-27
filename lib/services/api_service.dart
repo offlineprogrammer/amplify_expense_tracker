@@ -40,7 +40,7 @@ class APIService {
   Future<void> updateExpense(ExpenseItem updatedExpenseItem) async {
     try {
       final request = ModelMutations.update(updatedExpenseItem);
-      final response = await Amplify.API.mutate(request: request).response;
+      await Amplify.API.mutate(request: request).response;
     } on Exception catch (e) {
       _showError(e);
     }
@@ -77,7 +77,7 @@ class APIService {
   Future<void> deleteExpense(ExpenseItem expenseItem) async {
     try {
       final request = ModelMutations.delete(expenseItem);
-      final response = await Amplify.API.mutate(request: request).response;
+      await Amplify.API.mutate(request: request).response;
     } on Exception catch (e) {
       _showError(e);
     }
