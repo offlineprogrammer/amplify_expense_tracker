@@ -44,10 +44,13 @@ class _MyAppState extends State<MyApp> {
         _amplifyConfigured = true;
       });
     } on AmplifyAlreadyConfiguredException {
-      print(
-        'Tried to reconfigure Amplify; '
-        'this can occur when your app restarts on Android.',
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          'Tried to reconfigure Amplify; '
+          'this can occur when your app restarts on Android.',
+        ),
+      ));
     }
   }
 

@@ -1,13 +1,7 @@
-import 'package:amplify_expense_tracker/services/api_service.dart';
 import 'package:flutter/material.dart';
 
-import '../models/ModelProvider.dart';
-
 class DeleteExpense extends StatefulWidget {
-  const DeleteExpense(this.expenseItem, this.apiService, {Key? key})
-      : super(key: key);
-  final ExpenseItem expenseItem;
-  final APIService apiService;
+  const DeleteExpense({Key? key}) : super(key: key);
 
   @override
   State<DeleteExpense> createState() => _DeleteExpenseState();
@@ -22,7 +16,6 @@ class _DeleteExpenseState extends State<DeleteExpense> {
       actions: [
         TextButton(
             onPressed: () async {
-              await widget.apiService.deleteExpense(widget.expenseItem);
               Navigator.of(context).pop(true);
             },
             child: const Text('Yes')),

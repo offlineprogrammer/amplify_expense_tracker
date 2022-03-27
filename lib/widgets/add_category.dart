@@ -17,12 +17,6 @@ class _AddCategoryState extends State<AddCategory> {
 
   final formGlobalKey = GlobalKey<FormState>();
 
-  Future<void> _saveCategory(BuildContext context) async {
-    await widget.apiService.saveCategory(_expenseCategoryController.text);
-    _expenseCategoryController.text = '';
-    Navigator.of(context).pop(true);
-  }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -52,7 +46,8 @@ class _AddCategoryState extends State<AddCategory> {
                         const InputDecoration(hintText: "Category Name"),
                     textInputAction: TextInputAction.done,
                     onEditingComplete: () {
-                      _saveCategory(context);
+                      Navigator.of(context)
+                          .pop(_expenseCategoryController.text);
                     } //,
                     ),
                 const SizedBox(
@@ -72,8 +67,8 @@ class _AddCategoryState extends State<AddCategory> {
                 return;
               }
               if (currentState.validate()) {
-                formGlobalKey.currentState!.save();
-                _saveCategory(context);
+                currentState.save();
+                Navigator.of(context).pop(_expenseCategoryController.text);
               }
             } //,, //,
             ),

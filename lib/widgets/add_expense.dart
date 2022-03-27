@@ -33,78 +33,82 @@ class _AddExpenseState extends State<AddExpense> {
           padding: const EdgeInsets.all(16.0),
           width: double.infinity,
           child: SingleChildScrollView(
-            child: ListBody(children: [
-              TextFormField(
-                textAlign: TextAlign.center,
-                controller: _expenseValueController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                validator: (value) {
-                  const _validationError = 'Enter a valid expense value';
-                  if (value == null || value.isEmpty) {
-                    return _validationError;
-                  }
-                  if (double.tryParse(value)! <= 0) {
-                    return _validationError;
-                  }
-                  return null;
-                },
-                style: const TextStyle(fontSize: 70, color: Colors.black),
-                autofocus: true,
-                autocorrect: false,
-                decoration: const InputDecoration(hintText: "0.00"),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(
-                height: 20.0,
-              ),
-              TextFormField(
-                controller: _expenseNameController,
-                autofocus: true,
-                autocorrect: false,
-                decoration: const InputDecoration(hintText: "Expense Name"),
-                textInputAction: TextInputAction.done,
-                validator: (name) {
-                  if (name != null && name.isNotEmpty) {
+            child: Column(
+              children: [
+                TextFormField(
+                  textAlign: TextAlign.center,
+                  controller: _expenseValueController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  validator: (value) {
+                    const _validationError = 'Enter a valid expense value';
+                    if (value == null || value.isEmpty) {
+                      return _validationError;
+                    }
+                    final parsed = double.tryParse(value);
+                    if (parsed == null || parsed <= 0) {
+                      return _validationError;
+                    }
                     return null;
-                  } else {
-                    return 'Enter a valid expense name';
-                  }
-                },
-              ),
-              const SizedBox(
-                height: 20.0,
-              ),
-              FutureBuilder<List<ExpenseCategory?>?>(
-                  future: widget.apiService.getExpenseCategories(),
-                  builder: (context, snapshot) {
-                    return DropdownButtonFormField<ExpenseCategory>(
-                      hint: const Text("Select"),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedExpenseCategory = newValue!;
-                        });
-                      },
-                      validator: (selected) {
-                        if (selected == null) {
-                          return 'Select an expense item';
-                        }
-                        return null;
-                      },
-                      items: snapshot.data
-                          ?.map((ec) => DropdownMenuItem<ExpenseCategory>(
-                                value: ec,
-                                child: Text(ec!.categoryname),
-                              ))
-                          .toList(),
-                    );
-                  }),
-              const SizedBox(
-                height: 20.0,
-              ),
-            ]),
+                  },
+                  style: const TextStyle(fontSize: 70, color: Colors.black),
+                  autofocus: true,
+                  autocorrect: false,
+                  decoration: const InputDecoration(hintText: "0.00"),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(
+                  height: 20.0,
+                ),
+                TextFormField(
+                  controller: _expenseNameController,
+                  autofocus: true,
+                  autocorrect: false,
+                  decoration: const InputDecoration(hintText: "Expense Name"),
+                  textInputAction: TextInputAction.done,
+                  validator: (name) {
+                    if (name != null && name.isNotEmpty) {
+                      return null;
+                    } else {
+                      return 'Enter a valid expense name';
+                    }
+                  },
+                ),
+                const SizedBox(
+                  height: 20.0,
+                ),
+                FutureBuilder<List<ExpenseCategory?>?>(
+                    future: widget.apiService.getExpenseCategories(),
+                    builder: (context, snapshot) {
+                      return DropdownButtonFormField<ExpenseCategory>(
+                        hint: const Text("Select"),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedExpenseCategory = newValue;
+                          });
+                        },
+                        validator: (selected) {
+                          if (selected == null) {
+                            return 'Select a Category';
+                          }
+                          return null;
+                        },
+                        items: snapshot.data
+                            ?.whereType<ExpenseCategory>()
+                            .map((ec) => DropdownMenuItem<ExpenseCategory>(
+                                  value: ec,
+                                  child: Text(ec.categoryname),
+                                ))
+                            .toList(),
+                      );
+                    }),
+                const SizedBox(
+                  height: 20.0,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -119,14 +123,11 @@ class _AddExpenseState extends State<AddExpense> {
               if (currentState.validate()) {
                 ExpenseItem expenseItem = ExpenseItem(
                   expensename: _expenseNameController.text,
-                  expensevalue: double.tryParse(_expenseValueController.text)!,
+                  expensevalue: double.parse(_expenseValueController.text),
                   createdAt: TemporalDateTime.now(),
                   expensecategory: _selectedExpenseCategory!,
                 );
-                await widget.apiService.saveExpense(expenseItem);
-                _expenseNameController.clear();
-                _expenseValueController.clear();
-                Navigator.of(context).pop(true);
+                Navigator.of(context).pop(expenseItem);
               }
             } //,
             ),

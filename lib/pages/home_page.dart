@@ -48,14 +48,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _updateExpenseItem(ExpenseItem expenseItem) async {
-    var value = await showDialog<bool>(
+    var value = await showDialog<ExpenseItem>(
         context: context,
         builder: (BuildContext context) {
           return UpdateExpense(expenseItem, _apiService);
         });
-    value ??= false;
-
-    if (value) {
+    if (value != null) {
+      await _apiService.updateExpense(value);
       await _getLatestExpenseItems();
     }
   }
@@ -64,34 +63,39 @@ class _HomePageState extends State<HomePage> {
     var value = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
-          return DeleteExpense(expenseItem, _apiService);
+          return const DeleteExpense();
         });
     value ??= false;
 
     if (value) {
+      await _apiService.deleteExpense(expenseItem);
       await _getLatestExpenseItems();
     }
   }
 
   void _showAddExpenseDialog(BuildContext context) async {
-    var value = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AddExpense(_apiService);
-        });
-    value ??= false;
-
-    if (value) {
+    var value = await showDialog<ExpenseItem>(
+      context: context,
+      builder: (BuildContext context) {
+        return AddExpense(_apiService);
+      },
+    );
+    if (value != null) {
+      await _apiService.saveExpense(value);
       await _getLatestExpenseItems();
     }
   }
 
   void _showAddCategoryDialog(BuildContext context) async {
-    await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AddCategory(_apiService);
-        });
+    var value = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AddCategory(_apiService);
+      },
+    );
+    if (value != null) {
+      await _apiService.saveCategory(value);
+    }
   }
 
   @override
