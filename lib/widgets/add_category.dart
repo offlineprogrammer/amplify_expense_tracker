@@ -2,21 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 
-class AddCategory extends StatelessWidget {
-  AddCategory(this.apiService, {Key? key}) : super(key: key);
+class AddCategory extends StatefulWidget {
+  const AddCategory(this.apiService, {Key? key}) : super(key: key);
 
   final APIService apiService;
 
+  @override
+  State<AddCategory> createState() => _AddCategoryState();
+}
+
+class _AddCategoryState extends State<AddCategory> {
   final TextEditingController _expenseCategoryController =
       TextEditingController();
 
   final formGlobalKey = GlobalKey<FormState>();
-
-  Future<void> _saveCategory(BuildContext context) async {
-    await apiService.saveCategory(_expenseCategoryController.text);
-    _expenseCategoryController.text = '';
-    Navigator.of(context, rootNavigator: true).pop(true);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,17 +37,17 @@ class AddCategory extends StatelessWidget {
                     autofocus: true,
                     autocorrect: false,
                     validator: (name) {
-                      if (name!.isNotEmpty) {
-                        return null;
-                      } else {
+                      if (name == null || name.isEmpty) {
                         return 'Enter a valid category';
                       }
+                      return null;
                     },
                     decoration:
                         const InputDecoration(hintText: "Category Name"),
                     textInputAction: TextInputAction.done,
                     onEditingComplete: () {
-                      _saveCategory(context);
+                      Navigator.of(context)
+                          .pop(_expenseCategoryController.text);
                     } //,
                     ),
                 const SizedBox(
@@ -61,14 +60,18 @@ class AddCategory extends StatelessWidget {
       ),
       actions: [
         TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              if (formGlobalKey.currentState!.validate()) {
-                formGlobalKey.currentState!.save();
-                _saveCategory(context);
-              }
-            } //,, //,
-            ),
+          child: const Text('OK'),
+          onPressed: () {
+            final currentState = formGlobalKey.currentState;
+            if (currentState == null) {
+              return;
+            }
+            if (currentState.validate()) {
+              currentState.save();
+              Navigator.of(context).pop(_expenseCategoryController.text);
+            }
+          },
+        ),
       ],
     );
   }
