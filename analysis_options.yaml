@@ -9,6 +9,8 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
-analyzer: 
-  strong-mode: 
-    implicit-dynamic: true
+analyzer:
+  strong-mode:
+    implicit-dynamic: false
+  exclude:
+    - lib/models/**
