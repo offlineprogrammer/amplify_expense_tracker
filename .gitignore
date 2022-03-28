@@ -67,4 +67,5 @@ amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
 **.sample
+!amplify/backend/auth/*/build
 #amplify-do-not-edit-end
