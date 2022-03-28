@@ -20,6 +20,12 @@ git clone https://github.com/offlineprogrammer/amplify_expense_tracker.git
 amplify init
 ```
 
+3) Build all your local backend resources and provision it in the cloud.
+
+```bash
+amplify push
+```
+
 3) Install dependencies
 
 ```bash
